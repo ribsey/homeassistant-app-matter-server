@@ -96,6 +96,13 @@ jobs:
               --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }} \
               ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-amd64 \
               ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-aarch64
+
+            if [[ "${GITHUB_REF_NAME}" == v* ]]; then
+              docker buildx imagetools create \
+                --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${GITHUB_REF_NAME#v} \
+                ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-amd64 \
+                ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-aarch64
+            fi
           fi
 
       - name: Inspect
