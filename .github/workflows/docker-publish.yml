@@ -86,24 +86,20 @@ jobs:
 
       - name: Create multi-arch manifest
         run: |
-          docker buildx imagetools create \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest \
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-aarch64
+          TAGS="--tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest"
 
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            docker buildx imagetools create \
-              --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }} \
-              ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-amd64 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-aarch64
+            TAGS="${TAGS} --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}"
 
             if [[ "${GITHUB_REF_NAME}" == v* ]]; then
-              docker buildx imagetools create \
-                --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${GITHUB_REF_NAME#v} \
-                ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-amd64 \
-                ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-aarch64
+              TAGS="${TAGS} --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${GITHUB_REF_NAME#v}"
             fi
           fi
+
+          docker buildx imagetools create \
+            ${TAGS} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-amd64 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-aarch64
 
       - name: Inspect
         run: docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest
