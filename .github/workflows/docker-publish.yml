@@ -91,5 +91,12 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-amd64 \
             ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest-aarch64
 
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            docker buildx imagetools create \
+              --tag ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }} \
+              ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-amd64 \
+              ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ github.ref_name }}-aarch64
+          fi
+
       - name: Inspect
         run: docker buildx imagetools inspect ${{ env.REGISTRY }}/${{ env.IMAGE }}:latest
